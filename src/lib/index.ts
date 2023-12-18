@@ -1,1 +1,1 @@
-export {Counter} from './CounterDemo';
+export {CloudFilePicker} from './Cloud-FilePicker';
