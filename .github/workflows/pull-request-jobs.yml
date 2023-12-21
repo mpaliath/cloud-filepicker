@@ -33,7 +33,7 @@ jobs:
           cache: 'pnpm'
       - name: Run test tasks
         run: |
-          pnpm install --no-frozen-lockfile
+          pnpm install
           pnpm run lint:code --quiet
           pnpm run lint:style --quiet
           pnpm run test --silent
