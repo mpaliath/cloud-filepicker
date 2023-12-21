@@ -1,6 +1,6 @@
 {
-  "name": "react-library-template",
-  "homepage": "https://morewings.github.io/react-library-template/",
+  "name": "CloudPhotoPicker",
+  "homepage": "",
   "private": false,
   "version": "0.1.0",
   "type": "module",
@@ -19,20 +19,9 @@
   },
   "keywords": [
     "react",
-    "template",
-    "react-testing-library",
-    "testing-library",
-    "eslint",
-    "npm",
-    "rollup",
-    "stylelint",
-    "library",
-    "package",
-    "vite",
-    "css-modules",
     "typescript"
   ],
-  "description": "Missing React, typescript NPM library creation template",
+  "description": "Package for accessing photos from clouds",
   "scripts": {
     "dev": "vite",
     "clean:lib": "rm -rf dist",
@@ -51,16 +40,16 @@
     "prepare": "is-ci || husky install"
   },
   "peerDependencies": {
+    "@reduxjs/toolkit": "^2.0.1",
     "react": ">=18.2.0",
-    "react-dom": ">=18.2.0"
+    "react-dom": ">=18.2.0",
+    "react-redux": "^9.0.4"
   },
   "dependencies": {
     "@microsoft/mgt-element": "^3.1.3",
     "@microsoft/mgt-msal2-provider": "^3.1.3",
     "@microsoft/mgt-react": "^3.1.3",
-    "@reduxjs/toolkit": "^2.0.1",
-    "lodash": "^4.17.21",
-    "react-redux": "^9.0.4"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "7.6.2",
@@ -104,6 +93,7 @@
     "prettier": "3.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "redux": "^5.0.0",
     "storybook": "7.6.2",
     "stylelint": "15.11.0",
     "stylelint-config-prettier": "9.0.5",
