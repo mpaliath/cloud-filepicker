@@ -42,7 +42,7 @@
     "fix:code": "run-s 'lint:code --fix'",
     "lint:types": "tsc --pretty --noEmit",
     "lint:style": "stylelint ./src/**/*.css",
-    "fix:style": "run-s 'lint:style --fix'",
+    "fix:style": "run-s lint:style -- --fix",
     "test": "jest",
     "preview": "vite preview",
     "start:docs": "storybook dev -p 6006",
