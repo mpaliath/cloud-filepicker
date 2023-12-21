@@ -12,16 +12,13 @@ export default defineConfig({
     resolve: {
         alias: hq.get('rollup'),
     },
-    plugins: [
-        react(), 
-        dts({rollupTypes: true, exclude: ['**/*.stories.(ts|tsx)']}),
-    ],
+    plugins: [react(), dts({rollupTypes: true, exclude: ['**/*.stories.(ts|tsx)']})],
     build: {
         sourcemap: true,
         lib: {
             // Could also be a dictionary or array of multiple entry points
             entry: resolve(__dirname, 'src/lib/index.ts'),
-            name: 'Library name',
+            name: 'Fetch Cloud Photos',
             // the proper extensions will be added
             fileName: 'index',
         },
