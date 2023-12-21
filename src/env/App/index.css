@@ -4,11 +4,48 @@
 }
 
 body {
+    margin: 0;
+    min-height: 100vh;
+    min-width: 320px;
+}
+
+div.header {
+    min-height: 50px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* This makes the div take the full viewport height */
+    margin: 0;
+    padding: 0;
+}
+
+div.body {
     align-items: center;
     display: flex;
     flex-direction: row;
     justify-content: center;
-    margin: 0;
-    min-height: 100vh;
-    min-width: 320px;
+    height: 100vh; /* Adjust as needed */
+}
+
+.header-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Adjust as needed */
+}
+
+.header-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.header-hidden {
+    display: none;
 }

@@ -33,7 +33,10 @@ export const CloudFilePicker: FC<FileListProps> = props => {
             },
         })
             .then(response => response.json())
-            .then(data => setFiles(data.value.filter(file => !file.file?.mimeType.startsWith('video/'))))
+            .then(data => {
+                const files: File[] = data.value;
+                setFiles(files.filter(file => !file.file?.mimeType.startsWith('video/')));
+            })
             .catch(error => console.error(error));
     };
 
