@@ -1,21 +1,37 @@
-name: Dependabot auto-approve
-on: pull_request
+name: Auto Merge
+
+on:
+  pull_request_target:
+    types: [review_requested]
 
 permissions:
+  contents: write
   pull-requests: write
+  packages: read
 
 jobs:
-  dependabot:
+  autoMerge:
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
     steps:
-      - name: Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@v1
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-      - name: Approve a PR
-        run: gh pr review --approve "$PR_URL"
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Approve PR
+        run: |
+          gh pr checkout "${PR_URL}"
+          if [ "$(gh pr status --json reviewDecision -q .currentBranch.reviewDecision)" != "APPROVED" ]; then
+            gh pr review --approve "${PR_URL}"
+          else
+            echo "PR already approved."
+          fi
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for Dependabot PRs
+        if: contains(github.event.pull_request.title, 'bump')
+        run: gh pr merge --auto --merge "${PR_URL}"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
