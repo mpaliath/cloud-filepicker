@@ -50,11 +50,11 @@ export const CloudFilePicker: FC<FileListProps> = props => {
         setBreadcrumbs([{id: 'me/drive/special/photos', name: 'Root'}]);
     }, []); // empty dependency array for initial mount
 
-    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, file: File) => {
         setSelectedFiles(prevSelectedFiles =>
             event.target.checked
-                ? [...prevSelectedFiles, event.target.id]
-                : prevSelectedFiles.filter(id => id !== event.target.id)
+                ? [...prevSelectedFiles, file['@microsoft.graph.downloadUrl']!]
+                : prevSelectedFiles.filter(url => url !== file['@microsoft.graph.downloadUrl'])
         );
     };
 
@@ -128,7 +128,11 @@ export const CloudFilePicker: FC<FileListProps> = props => {
                                 {/* <br />
                             <label style={{ display:'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} htmlFor={file.id}>{file.name}</label> */}
                                 <br />
-                                <input type="checkbox" id={file.id} onChange={handleCheckboxChange} />
+                                <input
+                                    type="checkbox"
+                                    id={file.id}
+                                    onChange={event => handleCheckboxChange(event, file)}
+                                />
                             </>
                         )}
                     </div>
