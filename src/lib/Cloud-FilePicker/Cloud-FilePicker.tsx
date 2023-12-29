@@ -1,8 +1,9 @@
 import type {FC} from 'react';
 import type React from 'react';
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 
 import folderImage from './Assets/Small-Folder.svg';
+import './Cloud-FilePicker.css';
 
 type FileListProps = {
     accessToken: string;
@@ -27,23 +28,26 @@ export const CloudFilePicker: FC<FileListProps> = props => {
     const [currentFolder, setCurrentFolder] = useState<string>('me/drive/special/photos');
     const [breadcrumbs, setBreadcrumbs] = useState<{id: string; name: string}[]>([]);
 
-    const fetchFiles = (folder: string) => {
-        fetch(`https://graph.microsoft.com/v1.0/${folder}/children`, {
-            headers: {
-                Authorization: `Bearer ${props.accessToken}`,
-            },
-        })
-            .then(response => response.json())
-            .then(data => {
-                const files: File[] = data.value;
-                setFiles(files.filter(file => !file.file?.mimeType.startsWith('video/')));
+    const fetchFiles = useCallback(
+        (folder: string) => {
+            fetch(`https://graph.microsoft.com/v1.0/${folder}/children`, {
+                headers: {
+                    Authorization: `Bearer ${props.accessToken}`,
+                },
             })
-            .catch(error => console.error(error));
-    };
+                .then(response => response.json())
+                .then(data => {
+                    const files: File[] = data.value;
+                    setFiles(files.filter(file => !file.file?.mimeType.startsWith('video/')));
+                })
+                .catch(error => console.error(error));
+        },
+        [props.accessToken]
+    );
 
     useEffect(() => {
         fetchFiles(currentFolder);
-    }, [props.accessToken, currentFolder]);
+    }, [fetchFiles, currentFolder]);
 
     useEffect(() => {
         // Set the initial breadcrumb to represent the root folder
@@ -88,8 +92,8 @@ export const CloudFilePicker: FC<FileListProps> = props => {
     };
 
     return (
-        <div style={{maxWidth: '100%', overflowX: 'hidden'}}>
-            <div style={{marginBottom: '10px'}}>
+        <div className="cloud-file-picker">
+            <div className="header">
                 {breadcrumbs.map((breadcrumb, index) => (
                     <span key={breadcrumb.id}>
                         {index !== 0 && ' > '}
@@ -98,15 +102,14 @@ export const CloudFilePicker: FC<FileListProps> = props => {
                 ))}
             </div>
 
-            <div style={{display: 'flex', flexWrap: 'wrap', overflowY: 'auto', maxHeight: '400px'}}>
-                {files?.map(file => (
-                    <div
-                        key="folderContent"
-                        style={{margin: '10px', cursor: 'pointer', textAlign: 'center', maxWidth: '140px'}}>
+            <div className="body">
+                {files?.map((file, i) => (
+                    <div key={`folderContent${i}`} className="item">
                         {file.folder ? (
                             <div>
                                 <img
                                     style={{width: '100px', height: '100px'}}
+                                    id={file.id}
                                     src={folderImage}
                                     alt={file.name}
                                     onClick={() => handleFolderClick(file.id, file.name)}
@@ -138,7 +141,9 @@ export const CloudFilePicker: FC<FileListProps> = props => {
                     </div>
                 ))}
             </div>
-            <button onClick={handleConfirmSelection}>Confirm Selection</button>
+            <div className="footer">
+                <button onClick={handleConfirmSelection}>Confirm Selection</button>
+            </div>
         </div>
     );
 };
