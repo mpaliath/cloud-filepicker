@@ -17,6 +17,7 @@ type File = {
         childCount: number;
     };
     '@microsoft.graph.downloadUrl'?: string;
+    thumbnail?: string;
     file?: {
         mimeType: string;
     };
@@ -38,7 +39,42 @@ export const CloudFilePicker: FC<FileListProps> = props => {
                 .then(response => response.json())
                 .then(data => {
                     const files: File[] = data.value;
-                    setFiles(files.filter(file => !file.file?.mimeType.startsWith('video/')));
+
+                    // Create an array to store the promises for fetching thumbnails
+                    const fetchThumbnailPromises: Promise<void>[] = [];
+
+                    files.forEach(file => {
+                        if (file.file?.mimeType === 'image/heic') {
+                            const thumbnailPromise = fetch(
+                                `https://graph.microsoft.com/v1.0/me/drive/items/${file.id}/thumbnails`,
+                                {
+                                    headers: {
+                                        Authorization: `Bearer ${props.accessToken}`,
+                                    },
+                                }
+                            )
+                                .then(response => response.json())
+                                .then(thumbnails => {
+                                    thumbnails.value.forEach((thumbnail: {large: {url: string | undefined}}) => {
+                                        file['@microsoft.graph.downloadUrl'] = thumbnail.large.url;
+                                        console.log(thumbnail.large.url);
+                                        // Now you have the URL of the large thumbnail for each file
+                                    });
+                                })
+                                .catch(error => console.error('Error:', error));
+
+                            fetchThumbnailPromises.push(thumbnailPromise);
+                        }
+                    });
+
+                    // Use Promise.all to wait for all thumbnail fetch promises to resolve
+                    Promise.all(fetchThumbnailPromises)
+                        .then(() => {
+                            // All thumbnail fetches are complete
+                            const filteredFiles = files.filter(file => !file.file?.mimeType.startsWith('video/'));
+                            setFiles(filteredFiles);
+                        })
+                        .catch(error => console.error('Error fetching thumbnails:', error));
                 })
                 .catch(error => console.error(error));
         },
