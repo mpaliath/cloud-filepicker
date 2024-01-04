@@ -20,6 +20,12 @@ dependencies:
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
+  react:
+    specifier: '>=18.2.0'
+    version: 18.2.0
+  react-dom:
+    specifier: '>=18.2.0'
+    version: 18.2.0(react@18.2.0)
   react-redux:
     specifier: ^9.0.4
     version: 9.0.4(@types/react@18.2.39)(react@18.2.0)(redux@5.0.0)
@@ -142,15 +148,6 @@ devDependencies:
   prettier:
     specifier: 3.1.0
     version: 3.1.0
-  react:
-    specifier: 18.2.0
-    version: 18.2.0
-  react-dom:
-    specifier: 18.2.0
-    version: 18.2.0(react@18.2.0)
-  redux:
-    specifier: ^5.0.0
-    version: 5.0.0
   storybook:
     specifier: 7.6.2
     version: 7.6.2
@@ -11878,6 +11875,7 @@ packages:
 
   /redux@5.0.0:
     resolution: {integrity: sha512-blLIYmYetpZMET6Q6uCY7Jtl/Im5OBldy+vNPauA8vvsdqyt66oep4EUpAMWNHauTC6xa9JuRPhRB72rY82QGA==}
+    dev: false
 
   /reflect.getprototypeof@1.0.4:
     resolution: {integrity: sha512-ECkTw8TmJwW60lOTR+ZkODISW6RQ8+2CL3COqtiJKLd6MmB45hN51HprHFziKLGkAuTGQhBb91V8cy+KHlaCjw==}
