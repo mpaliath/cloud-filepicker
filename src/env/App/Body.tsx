@@ -38,7 +38,7 @@ const Body: FC = () => {
         return () => {
             Providers.removeProviderUpdatedListener(updateState);
         };
-    }, []);
+    }, [dispatch]);
 
     return (
         <div className="body">

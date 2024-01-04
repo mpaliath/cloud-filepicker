@@ -20,6 +20,7 @@ div.header {
     display: flex;
     flex-direction: column;
     height: 100vh; /* This makes the div take the full viewport height */
+
     /* justify-content: center; */
     margin: 0;
     padding: 0;
@@ -28,8 +29,11 @@ div.header {
 div.body {
     align-items: center;
     display: flex;
+
     /* flex-direction: row; */
+
     /* height: 100vh; Adjust as needed */
+
     /* justify-content: center; */
 }
 
