@@ -24,7 +24,7 @@ type File = {
 };
 
 export const CloudFilePicker: FC<FileListProps> = props => {
-    const [files, setFiles] = useState<File[] | null>(null);
+    const [files, setFiles] = useState<File[]>([]);
     const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
     const [currentFolder, setCurrentFolder] = useState<string>('me/drive/special/photos');
     const [breadcrumbs, setBreadcrumbs] = useState<{id: string; name: string}[]>([]);
