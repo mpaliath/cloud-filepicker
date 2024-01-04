@@ -1,6 +1,7 @@
 import {resolve} from 'path';
 
 import react from '@vitejs/plugin-react';
+import external from '@yelo/rollup-node-external';
 import hq from 'alias-hq';
 import postcssPresetEnv from 'postcss-preset-env';
 import {defineConfig} from 'vite';
@@ -24,6 +25,7 @@ export default defineConfig({
         rollupOptions: {
             // make sure to externalize deps that shouldn't be bundled
             // into your library
+            external: external(),
 
             output: {
                 // Provide global variables to use in the UMD build
