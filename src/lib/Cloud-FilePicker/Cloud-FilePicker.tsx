@@ -1,10 +1,13 @@
 import type {FC} from 'react';
 import type React from 'react';
 import {useCallback, useEffect, useState} from 'react';
+import {Breadcrumb, BreadcrumbItem, BreadcrumbButton, BreadcrumbDivider} from '@fluentui/react-components';
+import {bundleIcon, Folder24Filled, Folder24Regular} from '@fluentui/react-icons';
 
 import folderImage from './Assets/Small-Folder.svg';
 import './Cloud-FilePicker.css';
 
+const FolderIcon = bundleIcon(Folder24Filled, Folder24Regular);
 type FileListProps = {
     accessToken: string;
     onConfirmSelection: (selectedFiles: string[]) => void;
@@ -129,14 +132,16 @@ export const CloudFilePicker: FC<FileListProps> = props => {
 
     return (
         <div className="cloud-file-picker">
-            <div className="header">
+            <Breadcrumb size="large">
                 {breadcrumbs.map((breadcrumb, index) => (
-                    <span key={breadcrumb.id}>
-                        {index !== 0 && ' > '}
-                        <button onClick={() => handleBreadcrumbClick(index)}>{breadcrumb.name}</button>
-                    </span>
+                    <BreadcrumbItem key={breadcrumb.id}>
+                        <BreadcrumbButton icon={<FolderIcon />} onClick={() => handleBreadcrumbClick(index)}>
+                            {breadcrumb.name}
+                        </BreadcrumbButton>
+                        {index !== breadcrumbs.length - 1 && <BreadcrumbDivider />}
+                    </BreadcrumbItem>
                 ))}
-            </div>
+            </Breadcrumb>
 
             <div className="body">
                 {files?.map((file, i) => (
