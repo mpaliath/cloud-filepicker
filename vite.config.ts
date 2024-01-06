@@ -10,7 +10,9 @@ import dts from 'vite-plugin-dts';
 // https://vitejs.dev/config/
 export default defineConfig({
     resolve: {
-        alias: hq.get('rollup'),
+        alias: {
+            ...hq.get('rollup'),
+        },
     },
     plugins: [react(), dts({rollupTypes: true, exclude: ['**/*.stories.(ts|tsx)']})],
     build: {
@@ -32,6 +34,9 @@ export default defineConfig({
                 // for externalized deps
                 globals: {
                     react: 'React',
+                    '@fluentui/react-components': '@fluentui/react-components',
+                    'react/jsx-runtime': 'react/jsx-runtime',
+                    '@fluentui/react-icons': '@fluentui/react-icons',
                 },
                 assetFileNames: assetInfo => {
                     if (assetInfo.name == 'style.css') return 'Cloud-FilePicker.css';
