@@ -1,11 +1,52 @@
 import type {FC} from 'react';
 import type React from 'react';
 import {useCallback, useEffect, useState} from 'react';
-import {Breadcrumb, BreadcrumbItem, BreadcrumbButton, BreadcrumbDivider} from '@fluentui/react-components';
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbButton,
+    BreadcrumbDivider,
+    Button,
+    makeStyles,
+    Image,
+    Checkbox,
+} from '@fluentui/react-components';
 import {bundleIcon, Folder24Filled, Folder24Regular} from '@fluentui/react-icons';
 
 import folderImage from './Assets/Small-Folder.svg';
 import './Cloud-FilePicker.css';
+
+const useStackStyles = makeStyles({
+    root: {
+        display: 'flex',
+        flexDirection: 'row',
+        height: 'calc(100vh - 150px)', // Set to the height of the viewport
+    },
+    header: {
+        marginBottom: '10px',
+        marginLeft: '20px',
+    },
+    body: {
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        overflowY: 'auto', // Enable vertical scrolling
+        flexGrow: 1, // Allow this element to take up remaining space
+    },
+    item: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        marginBottom: '10px', // Adjust as needed
+        marginRight: '10px', // Adjust as needed
+    },
+    footer: {
+        marginLeft: '20px',
+        marginTop: 'auto',
+        paddingTop: '20px',
+        width: '200px',
+    },
+});
 
 const FolderIcon = bundleIcon(Folder24Filled, Folder24Regular);
 type FileListProps = {
@@ -130,6 +171,8 @@ export const CloudFilePicker: FC<FileListProps> = props => {
         }
     };
 
+    const styles = useStackStyles();
+
     return (
         <div className="cloud-file-picker">
             <Breadcrumb size="large">
@@ -143,18 +186,12 @@ export const CloudFilePicker: FC<FileListProps> = props => {
                 ))}
             </Breadcrumb>
 
-            <div className="body">
+            <div className={styles.root}>
                 {files?.map((file, i) => (
-                    <div key={`folderContent${i}`} className="item">
+                    <div key={`folderContent${i}`} className={styles.item}>
                         {file.folder ? (
-                            <div>
-                                <img
-                                    style={{width: '100px', height: '100px'}}
-                                    id={file.id}
-                                    src={folderImage}
-                                    alt={file.name}
-                                    onClick={() => handleFolderClick(file.id, file.name)}
-                                />
+                            <div onClick={() => handleFolderClick(file.id, file.name)}>
+                                <Image width={100} height={100} src={folderImage} alt={file.name} />
                                 <br />
                                 <label
                                     style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}
@@ -164,26 +201,23 @@ export const CloudFilePicker: FC<FileListProps> = props => {
                             </div>
                         ) : (
                             <>
-                                <img
+                                <Image
+                                    width={100}
+                                    height={100}
                                     src={file['@microsoft.graph.downloadUrl']}
                                     alt={file.name}
-                                    style={{width: '100px', height: '100px'}}
                                 />
-                                {/* <br />
-                            <label style={{ display:'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} htmlFor={file.id}>{file.name}</label> */}
                                 <br />
-                                <input
-                                    type="checkbox"
-                                    id={file.id}
-                                    onChange={event => handleCheckboxChange(event, file)}
-                                />
+                                <Checkbox id={file.id} onChange={event => handleCheckboxChange(event, file)} />
                             </>
                         )}
                     </div>
                 ))}
             </div>
             <div className="footer">
-                <button onClick={handleConfirmSelection}>Confirm Selection</button>
+                <Button appearance="primary" onClick={handleConfirmSelection}>
+                    Confirm Selection
+                </Button>
             </div>
         </div>
     );
