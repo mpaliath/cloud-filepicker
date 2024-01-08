@@ -1,20 +1,23 @@
-import type {FC} from 'react';
-import type React from 'react';
-import {useCallback, useEffect, useState} from 'react';
 import {
     Breadcrumb,
-    BreadcrumbItem,
     BreadcrumbButton,
     BreadcrumbDivider,
+    BreadcrumbItem,
     Button,
-    makeStyles,
-    Image,
     Checkbox,
+    Image,
+    Text,
+    makeStyles,
 } from '@fluentui/react-components';
-import {bundleIcon, Folder24Filled, Folder24Regular} from '@fluentui/react-icons';
+import {Folder24Filled, Folder24Regular, bundleIcon} from '@fluentui/react-icons';
+import type {FC} from 'react';
+import {useCallback, useEffect, useState} from 'react';
+
+import './Cloud-FilePicker.css';
 
 import folderImage from './Assets/Small-Folder.svg';
-import './Cloud-FilePicker.css';
+
+const FolderIcon = bundleIcon(Folder24Filled, Folder24Regular);
 
 const useStackStyles = makeStyles({
     root: {
@@ -48,7 +51,6 @@ const useStackStyles = makeStyles({
     },
 });
 
-const FolderIcon = bundleIcon(Folder24Filled, Folder24Regular);
 type FileListProps = {
     accessToken: string;
     onConfirmSelection: (selectedFiles: string[]) => void;
@@ -134,9 +136,10 @@ export const CloudFilePicker: FC<FileListProps> = props => {
         setBreadcrumbs([{id: 'me/drive/special/photos', name: 'Root'}]);
     }, []); // empty dependency array for initial mount
 
-    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, file: File) => {
+    const handleCheckboxChange = (file: File) => {
+        const targetElement = document.getElementById(file.id) as HTMLInputElement;
         setSelectedFiles(prevSelectedFiles =>
-            event.target.checked
+            targetElement.checked
                 ? [...prevSelectedFiles, file['@microsoft.graph.downloadUrl']!]
                 : prevSelectedFiles.filter(url => url !== file['@microsoft.graph.downloadUrl'])
         );
@@ -186,29 +189,38 @@ export const CloudFilePicker: FC<FileListProps> = props => {
                 ))}
             </Breadcrumb>
 
-            <div className={styles.root}>
+            <div className="body">
                 {files?.map((file, i) => (
                     <div key={`folderContent${i}`} className={styles.item}>
                         {file.folder ? (
-                            <div onClick={() => handleFolderClick(file.id, file.name)}>
-                                <Image width={100} height={100} src={folderImage} alt={file.name} />
-                                <br />
-                                <label
-                                    style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}
-                                    htmlFor={file.id}>
-                                    {file.name}
-                                </label>
+                            <div>
+                                <Button appearance="transparent" onClick={() => handleFolderClick(file.id, file.name)}>
+                                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                                        <Image
+                                            width={100}
+                                            height={100}
+                                            id={file.id}
+                                            src={folderImage}
+                                            alt={file.name}
+                                            title={file.name}
+                                        />
+                                        <Text>{file.name}</Text>
+                                    </div>
+                                </Button>
                             </div>
                         ) : (
                             <>
-                                <Image
-                                    width={100}
-                                    height={100}
-                                    src={file['@microsoft.graph.downloadUrl']}
-                                    alt={file.name}
-                                />
-                                <br />
-                                <Checkbox id={file.id} onChange={event => handleCheckboxChange(event, file)} />
+                                <Button appearance="transparent">
+                                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                                        <Image
+                                            width={100}
+                                            height={100}
+                                            src={file['@microsoft.graph.downloadUrl']}
+                                            alt={file.name}
+                                        />
+                                        <Checkbox id={file.id} onChange={() => handleCheckboxChange(file)} />
+                                    </div>
+                                </Button>
                             </>
                         )}
                     </div>
@@ -216,7 +228,7 @@ export const CloudFilePicker: FC<FileListProps> = props => {
             </div>
             <div className="footer">
                 <Button appearance="primary" onClick={handleConfirmSelection}>
-                    Confirm Selection
+                    Confirm Selection ({selectedFiles.length})
                 </Button>
             </div>
         </div>
