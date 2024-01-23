@@ -53,7 +53,13 @@ const useStackStyles = makeStyles({
 
 type FileListProps = {
     accessToken: string;
-    onConfirmSelection: (selectedFiles: string[]) => void;
+    onConfirmSelection: (selectedFiles: CloudFile[]) => void;
+};
+
+export type CloudFile = {
+    id: string;
+    name: string;
+    url: string;
 };
 
 type File = {
@@ -71,7 +77,7 @@ type File = {
 
 export const CloudFilePicker: FC<FileListProps> = props => {
     const [files, setFiles] = useState<File[]>([]);
-    const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [currentFolder, setCurrentFolder] = useState<string>('me/drive/special/photos');
     const [breadcrumbs, setBreadcrumbs] = useState<{id: string; name: string}[]>([]);
 
@@ -138,15 +144,22 @@ export const CloudFilePicker: FC<FileListProps> = props => {
 
     const handleCheckboxChange = (file: File) => {
         const targetElement = document.getElementById(file.id) as HTMLInputElement;
-        setSelectedFiles(prevSelectedFiles =>
-            targetElement.checked
-                ? [...prevSelectedFiles, file['@microsoft.graph.downloadUrl']!]
-                : prevSelectedFiles.filter(url => url !== file['@microsoft.graph.downloadUrl'])
-        );
+        setSelectedFiles(prevSelectedFiles => {
+            if (targetElement.checked) {
+                return [...prevSelectedFiles, file];
+            } else {
+                return prevSelectedFiles.filter(selectedFile => selectedFile.id !== file.id);
+            }
+        });
     };
 
     const handleConfirmSelection = () => {
-        props.onConfirmSelection(selectedFiles);
+        const selectedCloudFiles: CloudFile[] = selectedFiles.map(file => ({
+            id: file.id,
+            name: file.name,
+            url: file['@microsoft.graph.downloadUrl'] ?? '',
+        }));
+        props.onConfirmSelection(selectedCloudFiles);
     };
 
     const handleFolderClick = (folderId: string, folderName: string) => {
@@ -218,7 +231,11 @@ export const CloudFilePicker: FC<FileListProps> = props => {
                                             src={file['@microsoft.graph.downloadUrl']}
                                             alt={file.name}
                                         />
-                                        <Checkbox id={file.id} onChange={() => handleCheckboxChange(file)} />
+                                        <Checkbox
+                                            id={file.id}
+                                            onChange={() => handleCheckboxChange(file)}
+                                            checked={selectedFiles.some(selectedFile => selectedFile.id === file.id)}
+                                        />
                                     </div>
                                 </Button>
                             </>
