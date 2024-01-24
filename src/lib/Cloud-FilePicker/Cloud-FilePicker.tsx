@@ -6,6 +6,8 @@ import {
     Button,
     Checkbox,
     Image,
+    Skeleton,
+    SkeletonItem,
     Text,
     makeStyles,
 } from '@fluentui/react-components';
@@ -73,6 +75,7 @@ type File = {
     file?: {
         mimeType: string;
     };
+    thumbnailAvailable?: boolean;
 };
 
 export const CloudFilePicker: FC<FileListProps> = props => {
@@ -83,6 +86,8 @@ export const CloudFilePicker: FC<FileListProps> = props => {
 
     const fetchFiles = useCallback(
         (folder: string) => {
+            console.log('Starting Children Fetch');
+            setFiles([]);
             fetch(`https://graph.microsoft.com/v1.0/${folder}/children`, {
                 headers: {
                     Authorization: `Bearer ${props.accessToken}`,
@@ -91,44 +96,34 @@ export const CloudFilePicker: FC<FileListProps> = props => {
                 .then(response => response.json())
                 .then(data => {
                     const files: File[] = data.value;
-
-                    // Create an array to store the promises for fetching thumbnails
-                    const fetchThumbnailPromises: Promise<void>[] = [];
+                    const filteredFiles = files.filter(file => !file.file?.mimeType.startsWith('video/'));
+                    setFiles(filteredFiles); // Set the initial state with the files fetched
+                    console.log('Initial state update');
 
                     files.forEach(file => {
                         if (file.file?.mimeType === 'image/heic') {
-                            const thumbnailPromise = fetch(
-                                `https://graph.microsoft.com/v1.0/me/drive/items/${file.id}/thumbnails`,
-                                {
-                                    headers: {
-                                        Authorization: `Bearer ${props.accessToken}`,
-                                    },
-                                }
-                            )
+                            fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${file.id}/thumbnails`, {
+                                headers: {
+                                    Authorization: `Bearer ${props.accessToken}`,
+                                },
+                            })
                                 .then(response => response.json())
                                 .then(thumbnails => {
                                     thumbnails.value.forEach((thumbnail: {large: {url: string | undefined}}) => {
                                         file['@microsoft.graph.downloadUrl'] = thumbnail.large.url;
-                                        console.log(thumbnail.large.url);
-                                        // Now you have the URL of the large thumbnail for each file
+                                        file.thumbnailAvailable = true;
                                     });
+                                    setFiles([...files]); // Update the state with the new thumbnail
                                 })
-                                .catch(error => console.error('Error:', error));
-
-                            fetchThumbnailPromises.push(thumbnailPromise);
+                                .catch(error => {
+                                    console.error('Error fetching thumbnails:', error);
+                                    throw error;
+                                });
                         }
                     });
-
-                    // Use Promise.all to wait for all thumbnail fetch promises to resolve
-                    Promise.all(fetchThumbnailPromises)
-                        .then(() => {
-                            // All thumbnail fetches are complete
-                            const filteredFiles = files.filter(file => !file.file?.mimeType.startsWith('video/'));
-                            setFiles(filteredFiles);
-                        })
-                        .catch(error => console.error('Error fetching thumbnails:', error));
                 })
                 .catch(error => console.error(error));
+            console.log('Done with callback');
         },
         [props.accessToken]
     );
@@ -203,45 +198,80 @@ export const CloudFilePicker: FC<FileListProps> = props => {
             </Breadcrumb>
 
             <div className="body">
-                {files?.map((file, i) => (
-                    <div key={`folderContent${i}`} className={styles.item}>
-                        {file.folder ? (
-                            <div>
-                                <Button appearance="transparent" onClick={() => handleFolderClick(file.id, file.name)}>
-                                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                                        <Image
-                                            width={100}
-                                            height={100}
-                                            id={file.id}
-                                            src={folderImage}
-                                            alt={file.name}
-                                            title={file.name}
-                                        />
-                                        <Text>{file.name}</Text>
-                                    </div>
-                                </Button>
-                            </div>
-                        ) : (
-                            <>
-                                <Button appearance="transparent">
-                                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                                        <Image
-                                            width={100}
-                                            height={100}
-                                            src={file['@microsoft.graph.downloadUrl']}
-                                            alt={file.name}
-                                        />
-                                        <Checkbox
-                                            id={file.id}
-                                            onChange={() => handleCheckboxChange(file)}
-                                            checked={selectedFiles.some(selectedFile => selectedFile.id === file.id)}
-                                        />
-                                    </div>
-                                </Button>
-                            </>
-                        )}
+                {files?.length === 0 ? (
+                    <div style={{width: '100%'}}>
+                        <Skeleton animation="pulse">
+                            <SkeletonItem shape="rectangle" />
+                        </Skeleton>
                     </div>
-                ))}
+                ) : (
+                    <>
+                        {files?.map((file, i) => (
+                            <div key={`folderContent${i}`} className={styles.item}>
+                                {file.folder ? (
+                                    <div>
+                                        <Button
+                                            appearance="transparent"
+                                            onClick={() => handleFolderClick(file.id, file.name)}>
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                }}>
+                                                <Image
+                                                    width={100}
+                                                    height={100}
+                                                    id={file.id}
+                                                    src={folderImage}
+                                                    alt={file.name}
+                                                    title={file.name}
+                                                />
+                                                <Text>{file.name}</Text>
+                                            </div>
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <Button appearance="transparent">
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                }}>
+                                                {file.file?.mimeType.endsWith('heic') &&
+                                                file.thumbnailAvailable !== true ? (
+                                                    <>
+                                                        <Skeleton width={100} animation="pulse">
+                                                            <SkeletonItem shape="square" size={96} />
+                                                        </Skeleton>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Image
+                                                            width={100}
+                                                            height={100}
+                                                            src={file['@microsoft.graph.downloadUrl']}
+                                                            alt={file.name}
+                                                        />
+                                                        <Checkbox
+                                                            id={file.id}
+                                                            onChange={() => handleCheckboxChange(file)}
+                                                            checked={selectedFiles.some(
+                                                                selectedFile => selectedFile.id === file.id
+                                                            )}
+                                                        />
+                                                    </>
+                                                )}
+                                            </div>
+                                        </Button>
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                    </>
+                )}
             </div>
             <div className="footer">
                 <Button appearance="primary" onClick={handleConfirmSelection}>
